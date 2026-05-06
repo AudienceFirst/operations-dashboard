@@ -254,6 +254,7 @@ async function processOverviewItem(item, index, total, type) {
     hasList: !!listId,
     listId: listId || null,
     listUrl: listUrl || null,
+    dateCreated: item.date_created ? new Date(parseInt(item.date_created)).toISOString() : null,
 
     tasks: deliveryTasks,
   };

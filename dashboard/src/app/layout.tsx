@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: "ClickUp projectmanagement dashboards voor ZUID",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cache = loadCache();
   const session = await auth();

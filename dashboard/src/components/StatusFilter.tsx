@@ -11,9 +11,18 @@ interface StatusFilterProps {
   selected: string[];
   onChange: (selected: string[]) => void;
   label?: string;
+  allSelectedLabel?: string;
+  capitalizeOptions?: boolean;
 }
 
-export default function StatusFilter({ statuses, selected, onChange, label = "Filter op status" }: StatusFilterProps) {
+export default function StatusFilter({
+  statuses,
+  selected,
+  onChange,
+  label = "Filter op status",
+  allSelectedLabel = "Alle statuses",
+  capitalizeOptions = true,
+}: StatusFilterProps) {
   const [open, setOpen] = useState(false);
   const allSelected = selected.length === 0 || selected.length === statuses.length;
 
@@ -37,7 +46,7 @@ export default function StatusFilter({ statuses, selected, onChange, label = "Fi
   if (statuses.length === 0) return null;
 
   const displayLabel = allSelected
-    ? "Alle statuses"
+    ? allSelectedLabel
     : selected.length === 1
       ? selected[0]
       : `${selected.length} geselecteerd`;
@@ -87,7 +96,7 @@ export default function StatusFilter({ statuses, selected, onChange, label = "Fi
                   >
                     {isSelected && <Check size={12} className="text-white" />}
                   </span>
-                  <span className="capitalize">{s || "(leeg)"}</span>
+                  <span className={capitalizeOptions ? "capitalize" : undefined}>{s || "(leeg)"}</span>
                 </button>
               );
             })}

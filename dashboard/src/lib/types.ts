@@ -60,6 +60,8 @@ export interface OverviewItem {
   listUrl: string | null;
   /** Lijst is gearchiveerd in ClickUp */
   listArchived?: boolean;
+  /** Aanmaakdatum van de overview-taak (opdracht) */
+  dateCreated?: string | null;
 
   tasks: DeliveryTask[];
 }

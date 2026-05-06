@@ -2,10 +2,19 @@ import { loadCache } from "@/lib/data";
 import MetricCard from "@/components/MetricCard";
 import HygieneProjectList from "./HygieneProjectList";
 import GrippSection from "./GrippSection";
+import HygieneOrphanDeliveryLists from "./HygieneOrphanDeliveryLists";
+import { TEAM_ID, getFolders, getLists } from "@/lib/clickup";
 
 export const dynamic = "force-dynamic";
 
-export default function HygienePage() {
+interface OrphanDeliveryListRow {
+  id: string;
+  name: string;
+  folder: string;
+  url: string;
+}
+
+export default async function HygienePage() {
   const cache = loadCache();
   if (!cache) {
     return (
@@ -31,6 +40,41 @@ export default function HygienePage() {
     p.tasks.filter((t) => t.hoursOnContainer > 0).map((t) => ({ ...t, projectName: p.name, pm: p.pm }))
   );
   const totalContainerHours = containerHours.reduce((s, t) => s + t.hoursOnContainer, 0);
+  const overviewListIds = new Set(
+    [...cache.projects, ...cache.estimates]
+      .map((item) => item.listId)
+      .filter((id): id is string => Boolean(id))
+  );
+
+  let orphanDeliveryLists: OrphanDeliveryListRow[] = [];
+  let orphanDeliveryListsError: string | null = null;
+  const deliverySpaceId = cache.spaces.delivery;
+
+  if (deliverySpaceId) {
+    try {
+      const folders = await getFolders(deliverySpaceId, false);
+      const listsPerFolder = await Promise.all(
+        folders.map(async (folder) => {
+          const lists = await getLists(folder.id, false);
+          return lists.map((list) => ({
+            id: list.id,
+            name: list.name,
+            folder: folder.name,
+            url: `https://app.clickup.com/${TEAM_ID}/v/li/${list.id}`,
+          }));
+        })
+      );
+
+      orphanDeliveryLists = listsPerFolder
+        .flat()
+        .filter((list) => !overviewListIds.has(list.id))
+        .sort((a, b) => a.folder.localeCompare(b.folder) || a.name.localeCompare(b.name));
+    } catch {
+      orphanDeliveryListsError = "Kon Delivery-lijsten niet laden om te matchen met overview-taken.";
+    }
+  } else {
+    orphanDeliveryListsError = "Delivery space ontbreekt in cache, daardoor kunnen unmatched lijsten niet bepaald worden.";
+  }
 
   return (
     <div>
@@ -47,6 +91,10 @@ export default function HygienePage() {
       </div>
 
       <GrippSection />
+
+      <div className="mt-6">
+        <HygieneOrphanDeliveryLists rows={orphanDeliveryLists} error={orphanDeliveryListsError} />
+      </div>
 
       <HygieneProjectList projects={projects} />
     </div>

@@ -11,7 +11,8 @@ export async function POST() {
   try {
     const { stdout, stderr } = await execAsync(`node "${syncScript}"`, {
       cwd: process.cwd(),
-      timeout: 5 * 60 * 1000, // 5 minuten max
+      // Full sync can take much longer than 5 minutes with many projects/tasks.
+      timeout: 60 * 60 * 1000, // 60 minuten max
     });
 
     if (stderr) {
