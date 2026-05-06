@@ -25,7 +25,7 @@ const columns: Column<OrphanDeliveryListRow>[] = [
         rel="noopener noreferrer"
         className="text-orange-500 hover:underline text-xs"
       >
-        Open ->
+        Open →
       </a>
     ),
   },
