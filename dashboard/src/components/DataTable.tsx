@@ -32,7 +32,7 @@ interface Props<T> {
   rowClassName?: (row: T) => string;
 }
 
-export default function DataTable<T extends Record<string, unknown>>({
+export default function DataTable<T extends object>({
   data,
   columns,
   searchKeys = [],
@@ -52,16 +52,20 @@ export default function DataTable<T extends Record<string, unknown>>({
   const filtered = useMemo(() => {
     if (!search.trim()) return data;
     const q = search.toLowerCase();
-    return data.filter((row) =>
-      searchKeys.some((k) => String(row[k] ?? "").toLowerCase().includes(q))
-    );
+    return data.filter((row) => {
+      const record = row as Record<string, unknown>;
+      return searchKeys.some((k) => String(record[k] ?? "").toLowerCase().includes(q));
+    });
   }, [data, search, searchKeys]);
 
   const sorted = useMemo(() => {
     if (!sort) return filtered;
     const col = columns.find((c) => c.key === sort.key);
     if (!col) return filtered;
-    const getValue = col.sortValue ?? ((row: T) => row[sort.key] as number | string);
+    const getValue = col.sortValue ?? ((row: T) => {
+      const record = row as Record<string, unknown>;
+      return record[sort.key] as number | string;
+    });
     return [...filtered].sort((a, b) => {
       const va = getValue(a);
       const vb = getValue(b);
@@ -148,7 +152,7 @@ export default function DataTable<T extends Record<string, unknown>>({
               </tr>
             ) : (
               paged.map((row, i) => {
-                const rowId = String(row.id ?? i);
+                const rowId = String((row as { id?: unknown }).id ?? i);
                 const expandable = canExpand(row);
                 const isExpanded = expandable && expandedId === rowId;
                 const expandContent = expandable && isExpanded ? expandRow!(row) : null;
@@ -175,7 +179,7 @@ export default function DataTable<T extends Record<string, unknown>>({
                             col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"
                           )}
                         >
-                          {col.render ? col.render(row) : String(row[col.key] ?? "")}
+                          {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? "")}
                         </td>
                       ))}
                     </tr>
