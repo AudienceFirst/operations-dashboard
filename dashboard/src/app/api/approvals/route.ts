@@ -109,12 +109,12 @@ export async function DELETE(request: NextRequest) {
     if (type === "pm_expected_exceed" && data.pm_expected_exceed[projectId]) {
       delete data.pm_expected_exceed[projectId];
       save(data);
-    } else if (type in data && (data as Record<string, unknown>)[type]) {
-      const section = (data as Record<string, Record<string, unknown>>)[type];
-      if (section[projectId]) {
-        delete section[projectId];
-        save(data);
-      }
+    } else if (type === "mt_overspend" && data.mt_overspend[projectId]) {
+      delete data.mt_overspend[projectId];
+      save(data);
+    } else if (type === "pm_ohw_exceed" && data.pm_ohw_exceed[projectId]) {
+      delete data.pm_ohw_exceed[projectId];
+      save(data);
     }
 
     return NextResponse.json({ ok: true });
