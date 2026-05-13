@@ -12,6 +12,18 @@ npm run dev
 
 Open daarna `http://localhost:3000`.
 
+## Vereiste environment variables
+
+Voor authentication (Auth.js) moet je in productie minimaal een secret en Google OAuth credentials zetten:
+
+```bash
+AUTH_SECRET=een-lange-random-string
+AUTH_GOOGLE_ID=...
+AUTH_GOOGLE_SECRET=...
+```
+
+Compatibiliteit: `NEXTAUTH_SECRET` werkt ook als fallback voor `AUTH_SECRET`.
+
 ## Data sync
 
 De data cache wordt lokaal bijgewerkt met:

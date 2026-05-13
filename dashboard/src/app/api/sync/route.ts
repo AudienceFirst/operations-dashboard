@@ -24,7 +24,16 @@ export async function POST() {
     return NextResponse.json({ ok: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[sync] error:", message);
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    const stderr =
+      typeof err === "object" &&
+      err !== null &&
+      "stderr" in err &&
+      typeof (err as { stderr?: unknown }).stderr === "string"
+        ? (err as { stderr: string }).stderr
+        : "";
+    const details = stderr.trim().slice(0, 800);
+    const errorMessage = details ? `${message}\n${details}` : message;
+    console.error("[sync] error:", errorMessage);
+    return NextResponse.json({ ok: false, error: errorMessage }, { status: 500 });
   }
 }

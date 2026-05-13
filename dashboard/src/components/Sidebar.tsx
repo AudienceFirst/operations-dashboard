@@ -27,21 +27,30 @@ export default function Sidebar({ syncedAt, userEmail, userName, userImage }: Si
   const router = useRouter();
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState(false);
+  const [syncErrorMessage, setSyncErrorMessage] = useState<string | null>(null);
 
   const isAdmin = userEmail?.toLowerCase() === "ruben@zuid.com";
 
   async function handleSync() {
     setSyncing(true);
     setSyncError(false);
+    setSyncErrorMessage(null);
     try {
       const res = await fetch("/api/sync", { method: "POST" });
       if (!res.ok) {
         setSyncError(true);
+        try {
+          const body = (await res.json()) as { error?: string };
+          setSyncErrorMessage(body.error ?? "Onbekende sync-fout");
+        } catch {
+          setSyncErrorMessage("Onbekende sync-fout");
+        }
       } else {
         router.refresh();
       }
     } catch {
       setSyncError(true);
+      setSyncErrorMessage("Netwerkfout tijdens sync");
     } finally {
       setSyncing(false);
     }
@@ -121,6 +130,11 @@ export default function Sidebar({ syncedAt, userEmail, userName, userImage }: Si
               hour: "2-digit",
               minute: "2-digit",
             })}
+          </p>
+        )}
+        {syncErrorMessage && (
+          <p className="text-[11px] text-red-400/90 mt-1.5 px-1 whitespace-pre-wrap break-words">
+            {syncErrorMessage}
           </p>
         )}
       </div>

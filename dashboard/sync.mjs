@@ -15,14 +15,22 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const API_TOKEN = "pk_90802410_1MU0ZEXG77QFGP48G35BQRBJLCKAST9M";
-const TEAM_ID = "9013266744";
+const API_TOKEN = process.env.CLICKUP_API_TOKEN;
+const TEAM_ID = process.env.CLICKUP_TEAM_ID;
 const BASE = "https://api.clickup.com/api/v2";
 const OVERVIEW_PROJECTS_LIST = "901512698048";
 const OVERVIEW_ESTIMATES_LIST = "901512693345";
 const CONTAINER_TYPE = 1;
 
 let remaining = 100;
+
+if (!API_TOKEN) {
+  throw new Error("Missing CLICKUP_API_TOKEN");
+}
+
+if (!TEAM_ID) {
+  throw new Error("Missing CLICKUP_TEAM_ID");
+}
 
 async function api(endpoint, params = {}) {
   if (remaining < 5) await sleep(1200);

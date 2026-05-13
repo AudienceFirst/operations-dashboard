@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_TOKEN = "pk_90802410_1MU0ZEXG77QFGP48G35BQRBJLCKAST9M";
+const API_TOKEN = process.env.CLICKUP_API_TOKEN;
 const BASE = "https://api.clickup.com/api/v2";
 
 const FIELD_IDS: Record<string, { id: string; type: "currency" | "number" }> = {
@@ -11,6 +11,9 @@ const FIELD_IDS: Record<string, { id: string; type: "currency" | "number" }> = {
 };
 
 async function cuFetch(url: string, options: RequestInit = {}) {
+  if (!API_TOKEN) {
+    throw new Error("Missing CLICKUP_API_TOKEN");
+  }
   const res = await fetch(url, {
     ...options,
     headers: {

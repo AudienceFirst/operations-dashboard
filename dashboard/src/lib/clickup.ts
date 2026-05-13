@@ -1,5 +1,5 @@
-const API_TOKEN = "pk_90802410_1MU0ZEXG77QFGP48G35BQRBJLCKAST9M";
-const TEAM_ID = "9013266744";
+const API_TOKEN = process.env.CLICKUP_API_TOKEN;
+const TEAM_ID = process.env.CLICKUP_TEAM_ID;
 const BASE_URL = "https://api.clickup.com/api/v2";
 
 const OVERVIEW_PROJECTS_LIST = "901512698048";
@@ -11,6 +11,12 @@ export { API_TOKEN, TEAM_ID, BASE_URL, OVERVIEW_PROJECTS_LIST, CONTAINER_TASK_TY
 let rateLimitRemaining = 100;
 
 async function apiFetch(endpoint: string, params?: Record<string, string>): Promise<unknown> {
+  if (!API_TOKEN) {
+    throw new Error("Missing CLICKUP_API_TOKEN");
+  }
+  if (!TEAM_ID) {
+    throw new Error("Missing CLICKUP_TEAM_ID");
+  }
   if (rateLimitRemaining < 5) {
     await new Promise((r) => setTimeout(r, 1000));
   }
